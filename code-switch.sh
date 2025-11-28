@@ -1,5 +1,14 @@
 #!/bin/bash
 set -e
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
 init() { 
     mkdir -p ~/.code-switch
     touch ~/.claude/settings.json &&  ln ~/.claude/settings.json ~/.code-switch/settings.json
@@ -28,8 +37,8 @@ add() {
     cd ~/.code-switch
 
     if ! command -v jq &> /dev/null; then
-        echo "Error: jq is required for JSON manipulation. Please install jq first."
-        echo "Install with: sudo apt-get install jq (Ubuntu/Debian) or brew install jq (macOS)"
+        echo -e "${RED}Error: jq is required for JSON manipulation. Please install jq first.${NC}"
+        echo -e "${YELLOW}Install with: sudo apt-get install jq (Ubuntu/Debian) or brew install jq (macOS)${NC}"
         exit 1
     fi
     DOMAIN=$(echo "$BASE_URL" | sed -n 's|https\?://\([^/]*\).*|\1|p' | sed 's/^www\.//' | awk -F. '{print $(NF-1)}')
@@ -66,7 +75,7 @@ delete() {
     cd ~/.code-switch
     current_branch=$(git symbolic-ref --short HEAD)
     if [ "$current_branch" = "$1" ]; then
-        echo "Error: cannot delete current configuration of '$1'. Please switch to another configuration first."
+        echo -e "${RED}Error: cannot delete current configuration of '$1'. Please switch to another configuration first.${NC}"
         exit 1
     fi
     git branch -D "$1"
@@ -77,17 +86,17 @@ fi
 case "$1" in
     add)
         if [ $# -ne 4 ]; then
-            echo "Invalid arguments: add requires 3 parameters"
-            echo "Usage: code-switch add <BASE_URL> <API_KEY> <MODEL>"
-            echo "Example: code-switch add https://api.edgefn.net sk-abcdefg glm-4.6"
+            echo -e "${RED}Invalid arguments: add requires 3 parameters${NC}"
+            echo -e "${CYAN}Usage: code-switch add <BASE_URL> <API_KEY> <MODEL>${NC}"
+            echo -e "${YELLOW}Example: code-switch add https://api.edgefn.net sk-abcdefg glm-4.6${NC}"
             exit 1
         fi
         add "$2" "$3" "$4"
         ;;
     delete)
         if [ $# -ne 2 ]; then
-            echo "Invalid arguments: delete requires 1 parameter"
-            echo "Usage: code-switch delete <MODEL>@<DOMAIN>"
+            echo -e "${RED}Invalid arguments: delete requires 1 parameter${NC}"
+            echo -e "${CYAN}Usage: code-switch delete <MODEL>@<DOMAIN>${NC}"
             exit 1
         fi
         delete "$2"
@@ -97,17 +106,17 @@ case "$1" in
         ;;
     "")
         if [ "$(branch | sed 's/*//' | xargs)" = "default" ]; then
-            echo "The original configuration has been saved to the 'default' branch."
-            echo "Use: code-switch add <BASE_URL> <API_KEY> <MODEL> to add a new configuration."
-            echo "Example: code-switch add https://api.edgefn.net sk-abcdefg glm-4.6"
+            echo -e "${GREEN}The original configuration has been saved to the 'default' branch.${NC}"
+            echo -e "${CYAN}Use: code-switch add <BASE_URL> <API_KEY> <MODEL> to add a new configuration.${NC}"
+            echo -e "${YELLOW}Example: code-switch add https://api.edgefn.net sk-abcdefg glm-4.6${NC}"
             exit 0
         fi
         switch-branch
         ;;
     *)
-        echo "Usage:"
-        echo "  code-switch add <BASE_URL> <API_KEY> <MODEL>   # Add a new AI provider configuration"
-        echo "  code-switch delete <MODEL>@<DOMAIN>            # Delete a configuration"
-        echo "  code-switch check                              # Show current configuration"
+        echo -e "${WHITE}Usage:${NC}"
+        echo -e "  ${CYAN}code-switch add <BASE_URL> <API_KEY> <MODEL>${NC}   ${GREEN}# Add a new AI provider configuration${NC}"
+        echo -e "  ${CYAN}code-switch delete <MODEL>@<DOMAIN>${NC}            ${RED}# Delete a configuration${NC}"
+        echo -e "  ${CYAN}code-switch check${NC}                              ${YELLOW}# Show current configuration${NC}"
         ;;
 esac
