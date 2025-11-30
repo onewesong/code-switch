@@ -23,6 +23,7 @@ switch-branch() {
     select branch in $(git branch | sed 's/*//'); do
         if [ -n "$branch" ]; then
             git switch "$branch"
+            ln -f ~/.code-switch/settings.json ~/.claude/settings.json
             break
         else
             echo "Invalid choice."
@@ -102,7 +103,7 @@ case "$1" in
         delete "$2"
         ;;
     check)
-        less ~/.code-switch/settings.json
+        less ~/.claude/settings.json
         ;;
     "")
         if [ "$(branch | sed 's/*//' | xargs)" = "default" ]; then
